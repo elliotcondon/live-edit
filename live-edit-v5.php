@@ -229,6 +229,47 @@ class live_edit {
 		
 		// create form
 		acf_form( $args );
+
+		// find editable flexible layouts
+		$flex_fields = array();
+
+		foreach( $fields as $field ) {
+
+			if( substr( $field, 0, 5 ) === "flex-") {
+
+				$field = str_replace( 'flex-', '', $field );
+				$flex_fields[] = $field;
+			}
+		}
+
+		// remove all other flexible layouts
+		if( !empty( $flex_fields ) )  {
+
+			$flex_fields = json_encode( $flex_fields ); ?>
+
+			<script type="text/javascript">
+				(function($){
+
+					// loop through all flexible layouts loaded in DOM
+					$( 'div.layout' ).each(function(){
+
+
+						var fieldName = $(this).attr('data-layout');
+						
+						// remove layouts not included in editable fields
+						if( $.inArray(fieldName, <?php echo $flex_fields; ?>) == -1 ) {
+							$(this).css({'position':'absolute', 'z-index':'-1'});
+						}
+
+
+					});
+
+				})(jQuery);
+
+			</script>
+
+		<?php }
+
 		
 		
 		if( $options['updated'] === 'true' ) {
