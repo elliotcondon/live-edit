@@ -2,7 +2,7 @@
 
 This is a slightly modified version of Elliot Condon's Live Edit plugin (https://github.com/elliotcondon/live-edit)
 
-This version enables the live editing of individual flexible layouts, as well as their individual fields.
+This is a work in progress enabling live editing for individual flexible layouts, as well as their individual fields.
 
 ## Editing Flexible Layouts
 - To select your layout to edit, first include the name of the flexible content field it belongs to.
