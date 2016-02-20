@@ -230,47 +230,102 @@ class live_edit {
 		// create form
 		acf_form( $args );
 
-		// find editable flexible layouts
+/**
+		 * Find flexible layouts
+		 */
+		$flex_layouts = array();
 		$flex_fields = array();
 
+		// Isolate layouts and their subfields
 		foreach( $fields as $field ) {
-
 			if( substr( $field, 0, 5 ) === "flex-") {
-
 				$field = str_replace( 'flex-', '', $field );
-				$flex_fields[] = $field;
+				$strings = explode( '--', $field );
+
+				$flex_layouts[] = $strings[0];
+				$flex_fields[] = $strings[1];
 			}
 		}
+		
+		/**
+		 * Remove all other flexible layouts and fields
+		 */
+		if( !empty( $flex_layouts ) )  :
+			$flex_layouts = json_encode( $flex_layouts );
+			?>
 
-		// remove all other flexible layouts
-		if( !empty( $flex_fields ) )  {
+			<style>
+				.acf-tab-group,
+				.layout,
+				.acf-button[data-event="add-layout"],
+				.acf-fields p.credits {
+					display: none;
+				}
+			</style>
 
-			$flex_fields = json_encode( $flex_fields ); ?>
+			<?php
+			if( $flex_fields[0] ) {
+				$flex_fields = json_encode( $flex_fields );
+				?>
+
+				<style>
+					.acf-repeater .acf-field {
+						display: block;
+					}
+					/*.hidden-by-tab {
+						display: block !important;
+					}*/
+					.acf-field,
+					.acf-field-tab {
+						display: none;
+					}
+					.acf-field[data-type="flexible_content"] {
+						display: block;
+					}
+					.hidden-by-conditional-logic {
+						display: none !important;
+					}
+				</style>
+
+			<?php } ?>
 
 			<script type="text/javascript">
 				(function($){
 
-					// loop through all flexible layouts loaded in DOM
-					$( 'div.layout' ).each(function(){
+					// Make all selected layouts visible
+					$('.layout').each(function() {
+						var flexLayout = $(this).attr('data-layout');
 
-
-						var fieldName = $(this).attr('data-layout');
-						
-						// remove layouts not included in editable fields
-						if( $.inArray(fieldName, <?php echo $flex_fields; ?>) == -1 ) {
-							$(this).css({'position':'absolute', 'z-index':'-1'});
+						if($.inArray(flexLayout, <?php echo $flex_layouts; ?>) !== -1){
+							$(this).css({'display':'block'});
 						}
-
 
 					});
 
-				})(jQuery);
+					// Make all selected subfields visible 
+					$(window).load(function(){
 
+						// First remove tabs
+						$('.acf-field').removeClass('hidden-by-tab');
+
+						$('.acf-field').each(function() {
+							var flexField = $(this).attr('data-name');
+
+							if($.inArray(flexField, <?php echo $flex_fields; ?>) !== -1){
+								$(this).css('cssText', 'display: block');
+								console.log(this);
+							}
+
+						});
+					
+
+					})
+					
+				})(jQuery);
 			</script>
 
-		<?php }
-
-		
+		<?php
+		endif;
 		
 		if( $options['updated'] === 'true' ) {
 			
